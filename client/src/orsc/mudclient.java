@@ -757,90 +757,78 @@ public final class mudclient implements Runnable {
 	public final void run2() {
 		try {
 			try {
-				int var3 = 0;
-				int var4 = 256;
-				int var5 = 1;
-				int var6 = 0;
+				int i = 0;
+				int j = 256;
+				int sleepTime = 1;
+				int i1 = 0;
+				for (int j1 = 0; j1 < 10; j1++)
+					m_F[j1] = System.currentTimeMillis();
 
-				int var7;
-				for (var7 = 0; var7 < 10; ++var7) {
-					this.m_F[var7] = GenUtil.currentTimeMillis();
-				}
-
-				long var1 = GenUtil.currentTimeMillis();
-
-				while (this.threadState >= 0) {
-					if (this.threadState > 0) {
-						--this.threadState;
-						if (this.threadState == 0) {
+				while (threadState >= 0) {
+					if (threadState > 0) {
+						threadState--;
+						if (threadState == 0) {
 							this.closeProgram();
 							this.clientBaseThread = null;
 							return;
 						}
 					}
-
-					var7 = var4;
-					var4 = 300;
-					int var8 = var5;
-					var5 = 1;
-					var1 = GenUtil.currentTimeMillis();
-					if (~this.m_F[var3] == -1L) {
-						var5 = var8;
-						var4 = var7;
-					} else if (~var1 < ~this.m_F[var3]) {
-						var4 = (int) ((long) (this.sleepModifier * 2560) / (var1 + -this.m_F[var3]));
-					}
-
-					if (var4 < 25) {
-						var4 = 25;
-					}
-
-					if (var4 > 256) {
-						var4 = 256;
-						var5 = (int) (-((-this.m_F[var3] + var1) / 10L) + (long) this.sleepModifier);
-						if (var5 < this.m_Q) {
-							var5 = this.m_Q;
+					int k1 = j;
+					int i2 = sleepTime;
+					j = 300;
+					sleepTime = 1;
+					long l1 = System.currentTimeMillis();
+					if (m_F[i] == 0L) {
+						j = k1;
+						sleepTime = i2;
+					} else if (l1 > m_F[i])
+						j = (int) ((long) (2560 * sleepModifier) / (l1 - m_F[i]));
+					if (j < 25)
+						j = 25;
+					if (j > 256) {
+						j = 256;
+						sleepTime = (int) ((long) sleepModifier - (l1 - m_F[i]) / 10L);
+						try {
+							if(sleepTime > 60) sleepTime = 60;
+							Thread.sleep(sleepTime);
+						} catch (InterruptedException _ex) {
+							if (sleepTime < sleepModifier)
+								sleepTime = sleepModifier;
 						}
 					}
-					GenUtil.sleepShadow((long) var5);
-					this.m_F[var3] = var1;
-					int var9;
-					if (var5 > 1) {
-						for (var9 = 0; var9 < 10; ++var9) {
-							if (-1L != ~this.m_F[var9]) {
-								this.m_F[var9] += (long) var5;
-							}
-						}
+					try {
+						Thread.sleep(sleepTime);
+					} catch (InterruptedException _ex) {
 					}
+					m_F[i] = l1;
+					i = (i + 1) % 10;
+					if (sleepTime > 1) {
+						for (int j2 = 0; j2 < 10; j2++)
+							if (m_F[j2] != 0L)
+								m_F[j2] += sleepTime;
 
-					var3 = (1 + var3) % 10;
-					var9 = 0;
-
-					while (var6 < 256) {
+					}
+					int k2 = 0;
+					while (i1 < 256) {
 						this.update();
-						var6 += var4;
-						++var9;
-						if (var9 > this.m_S) {
-							var6 = 0;
-							this.m_b += 6;
-							if (this.m_b > 25) {
-								this.m_b = 0;
-								this.interlace = true;
+						i1 += j;
+						if (++k2 > m_S) {
+							i1 = 0;
+							m_b += 6;
+							if (m_b > 25) {
+								m_b = 0;
+								//keyF1Toggle = true;
+								//f2Toggle = false;
 							}
 							break;
 						}
 					}
-
-					--this.m_b;
-					var6 &= 255;
+					m_b--;
+					i1 &= 0xff;
 					if (reposition()) {
-						/*if (this.currentViewMode == GameMode.LOGIN) {
-							this.createLoginPanels(3845);
-							this.renderLoginScreenViewports(-116);
-						}*/
 						continue;
 					}
-					this.draw();
+					draw();
 					currentFPS++;
 					long time = System.currentTimeMillis();
 					if (time - lastFPSUpdate >= 1000) {
@@ -849,7 +837,6 @@ public final class mudclient implements Runnable {
 						currentFPS = 0;
 
 					}
-
 				}
 
 				if (this.threadState == -1) {
